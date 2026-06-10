@@ -1,0 +1,107 @@
+<div>
+    <h3>Daftar Stok Bahan Ajar</h3>
+    
+    <div class="border-box">
+        <strong>Filter & Urutkan:</strong>
+        <div style="display: flex; gap: 15px; margin-top: 10px; flex-wrap: wrap; align-items: center;">
+            <div>
+                <label>UT-Daerah: </label>
+                <select v-model="filterUpbjj">
+                    <option value="">-- Semua UT --</option>
+                    <option v-for="u in upbjjList" :key="u" :value="u">{{ u }}</option>
+                </select>
+            </div>
+            <div v-if="filterUpbjj">
+                <label>Kategori: </label>
+                <select v-model="filterKategori">
+                    <option value="">-- Semua Kategori --</option>
+                    <option v-for="k in kategoriList" :key="k" :value="k">{{ k }}</option>
+                </select>
+            </div>
+            <div>
+                <label>Kondisi Stok: </label>
+                <select v-model="filterKondisi">
+                    <option value="all">Semua Data</option>
+                    <option value="critical">Menipis / Kosong (Re-order)</option>
+                </select>
+            </div>
+            <div>
+                <label>Urutkan: </label>
+                <select v-model="sortBy">
+                    <option value="judul">Judul Mata Kuliah</option>
+                    <option value="qty">Jumlah Stok</option>
+                    <option value="harga">Harga</option>
+                </select>
+            </div>
+            <button @click="resetFilter" style="background: #6c757d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Reset Filter</button>
+        </div>
+    </div>
+
+    <div class="border-box" style="margin-top: 15px;">
+        <strong>{{ isEdit ? 'Edit' : 'Tambah' }} Data Stok (Tekan Enter untuk Simpan)</strong>
+        <div style="display: flex; gap: 10px; margin-top: 10px; align-items: flex-end; flex-wrap: wrap;">
+            <input type="text" placeholder="Kode" v-model="form.kode" :disabled="isEdit">
+            <input type="text" placeholder="Judul MK" v-model="form.judul">
+            <select v-model="form.kategori">
+                <option value="">- Kategori -</option>
+                <option v-for="k in kategoriList" :value="k">{{k}}</option>
+            </select>
+            <select v-model="form.upbjj">
+                <option value="">- UT Daerah -</option>
+                <option v-for="u in upbjjList" :value="u">{{u}}</option>
+            </select>
+            <input type="text" placeholder="Rak" v-model="form.lokasiRak" style="width: 70px;">
+            <input type="number" placeholder="Harga" v-model.number="form.harga" style="width: 90px;">
+            <input type="number" placeholder="Qty" v-model.number="form.qty" style="width: 70px;" @keyup.enter="saveStock">
+            <input type="number" placeholder="Safety" v-model.number="form.safety" style="width: 70px;" @keyup.enter="saveStock">
+            <button @click="saveStock" style="background: #28a745; color: white; border: none; padding: 8px 12px; cursor: pointer;">Simpan</button>
+            <button v-if="isEdit" @click="cancelEdit" style="background: #dc3545; color: white; border: none; padding: 8px 12px; cursor: pointer;">Batal</button>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>KODE / JUDUL MATA KULIAH</th>
+                <th>KATEGORI</th>
+                <th>UT-DAERAH</th>
+                <th>LOKASI RAK</th>
+                <th>HARGA</th>
+                <th>STOK / SAFETY</th>
+                <th>STATUS</th>
+                <th>AKSI</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="item in filteredAndSortedItems" :key="item.kode">
+                <td>
+                    <div class="book-cell" style="display: flex; align-items: center; gap: 12px; text-align: left;">
+                        <img :src="'assets/img/' + item.gambar" 
+                             :alt="item.judul" 
+                             style="width: 45px; height: 60px; object-fit: cover; border-radius: 6px; border: 1px solid #edf2f7; background: #f7fafc;"
+                             v-if="item.gambar">
+                        <div v-else style="width: 45px; height: 60px; background: #edf2f7; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 9px; color: #a0aec0; text-align: center; padding: 2px;">
+                            No Cover
+                        </div>
+                        <div>
+                            <div style="font-weight: bold; color: #1a202c;">{{ item.kode }} – {{ item.judul }}</div>
+                        </div>
+                    </div>
+                </td>
+                <td>{{ item.kategori }}</td>
+                <td>{{ item.upbjj }}</td>
+                <td>{{ item.lokasiRak }}</td>
+                <td>{{ item.harga | currency }}</td>
+                <td>{{ item.qty | satuan }} / {{ item.safety | satuan }}</td>
+                <td>
+                    <status-badge :qty="item.qty" :safety="item.safety"></status-badge>
+                    <div class="tooltip" v-html="item.catatanHTML || '<em>Tidak ada catatan</em>'"></div>
+                </td>
+                <td>
+                    <button @click="editStock(item)" style="background: #ffc107; border: none; padding: 4px 8px; cursor: pointer; border-radius: 4px; font-weight: bold; margin-right: 2px;">Edit</button>
+                    <button @click="deleteStock(item.kode)" style="background: #dc3545; color: white; border: none; padding: 4px 8px; cursor: pointer; border-radius: 4px; font-weight: bold;">Hapus</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div> 
