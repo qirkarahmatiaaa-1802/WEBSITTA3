@@ -1,0 +1,35 @@
+<div>
+    <h3>Pencarian & Tracking Status Pengiriman</h3>
+    <div class="border-box" style="display: flex; gap: 10px; align-items: center;">
+        <input type="text" v-model="keyword" placeholder="Cari berdasarkan Nomor DO atau NIM... (Enter untuk cari, Esc untuk reset)" style="flex: 1; padding: 8px;" @keyup.enter="search" @keyup.esc="clearSearch">
+        <button @click="search" style="padding: 8px 15px; background: #007bff; color: white; border: none; cursor: pointer;">Cari</button>
+    </div>
+
+    <div v-if="results.length > 0" style="margin-top: 15px;">
+        <div v-for="(doItem, index) in results" :key="index" class="border-box" style="border-left: 5px solid #007bff; margin-bottom: 10px;">
+            <h4>📦 {{ doItem.doNumber }} - {{ doItem.nama }} (NIM: {{ doItem.nim }})</h4>
+            <p>
+                <strong>Paket:</strong> {{ doItem.paket }} | 
+                <strong>Ekspedisi:</strong> {{ doItem.ekspedisi }} | 
+                <strong>Tanggal Kirim:</strong> {{ doItem.tanggalKirim | formatTanggal }} | 
+                <strong>Total:</strong> {{ doItem.total | currency }} <br>
+                <strong>Status Utama:</strong> <span style="color: #007bff; font-weight: bold;">{{ doItem.status }}</span>
+            </p>
+            
+            <h5>Histori Perjalanan / Progress Log:</h5>
+            <ul>
+                <li v-for="(log, lIdx) in doItem.perjalanan" :key="lIdx">
+                    <small style="color: #666;">[{{ log.waktu }}]</small> - {{ log.keterangan }}
+                </li>
+            </ul>
+
+            <div style="margin-top: 10px; background: #f1f1f1; padding: 8px; border-radius: 4px; display: flex; gap: 8px;">
+                <input type="text" v-model="newLogs[doItem.doNumber]" placeholder="Tambahkan keterangan update perjalanan..." style="flex: 1; padding: 4px;">
+                <button @click="addLogStatus(doItem.doNumber)" style="background: #28a745; color: white; border: none; padding: 4px 10px; cursor: pointer;">Update Lokasi</button>
+            </div>
+        </div>
+    </div>
+    <div v-else-if="searched" style="margin-top: 15px; color: red;">
+        Data DO atau NIM tidak ditemukan.
+    </div>
+</div>
