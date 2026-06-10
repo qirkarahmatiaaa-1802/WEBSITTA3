@@ -1,0 +1,10 @@
+<div v-if="visible" class="modal">
+    <div class="modal-content">
+        <h4>{{ title }}</h4>
+        <p>{{ message }}</p>
+        <div style="text-align: right; margin-top: 20px;">
+            <button @click="cancel" style="padding: 6px 12px; margin-right: 8px; background: #6c757d; color: white; border: none; cursor: pointer;">Batal</button>
+            <button @click="confirm" style="padding: 6px 12px; background: #dc3545; color: white; border: none; cursor: pointer;">Konfirmasi Hapus</button>
+        </div>
+    </div>
+</div>
